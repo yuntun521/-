@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>赛博朋克夜行者：霓虹末路</title>
+  <style>
+    :root{
+      --bg:#050b14;
+      --bg-2:#0d1420;
+      --panel:rgba(13,22,30,0.9);
+      --panel-2:rgba(18,24,34,0.94);
+      --cyan:#63efff;
+      --cyan-2:#9af5ff;
+      --pink:#ff7ae6;
+      --purple:#c89bff;
+      --gold:#ffe38f;
+      --text:#eaf7ff;
+      --muted:#8aa3b2;
+      --danger:#ff5f7a;
+      --success:#77f7b1;
+      --warning:#ffbf69;
+      --shadow-cyan:0 0 12px rgba(99,239,255,0.6);
+      --shadow-pink:0 0 12px rgba(255,122,230,0.55);
+      --shadow-purple:0 0 14px rgba(200,155,255,0.45);
+    }
+
+    * { box-sizing: border-box; }
+    html, body { height: 100%; margin: 0; }
+    body{
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+      background:
+        radial-gradient(circle at top, rgba(112,159,255,0.12), transparent 30%),
+        radial-gradient(circle at bottom right, rgba(255,90,200,0.18), transparent 25%),
+        linear-gradient(180deg, #040912 0%, #081623 100%);
+      color: var(--text);
+      overflow-x: hidden;
+    }
+    body::before{
+      content:"";
+      position: fixed; inset: 0;
+      background-image:
+        linear-gradient(rgba(98,145,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(98,145,255,0.04) 1px, transparent 1px);
+      background-size: 24px 24px;
+      pointer-events: none;
+    }
+
+    #app{
+      max-width: 1550px;
+      margin: 18px auto;
+      padding: 18px 18px 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel{
+      background: linear-gradient(180deg, rgba(14,19,29,0.95), rgba(8,13,20,0.97));
+      border: 1px solid rgba(103,196,255,0.4);
+      border-radius: 18px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03), var(--shadow-cyan);
+    }
+
+    .header{
+      display: grid;
+      grid-template-columns: 1.3fr 1fr;
+      gap: 18px;
+      margin-bottom: 18px;
+    }
+
+    .title-panel{
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .title{
+      font-size: clamp(24px, 3vw, 38px);
+      letter-spacing: 0.14em;
+      font-weight: 800;
+      color: var(--cyan-2);
+      text-shadow: 0 0 16px rgba(99,239,255,0.9), 0 0 32px rgba(99,239,255,0.42);
+    }
+
+    .subtitle{
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .header-actions{
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    button{
+      appearance: none;
+      border: 1px solid rgba(130,214,255,0.7);
+      background: linear-gradient(180deg, rgba(17,28,36,0.95), rgba(12,20,28,0.92));
+      color: var(--text);
+      border-radius: 12px;
+      padding: 9px 14px;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.03);
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    button:hover{
+      transform: translateY(-1px);
+      border-color: rgba(255,122,230,0.9);
+      box-shadow: 0 0 12px rgba(255,122,230,0.28), inset 0 0 12px rgba(110,225,255,0.08);
+    }
+
+    .primary{
+      border-color: rgba(99,239,255,0.9);
+      background: linear-gradient(180deg, rgba(25,49,60,0.92), rgba(12,29,36,0.9));
+      box-shadow: var(--shadow-cyan);
+    }
+
+    .danger{
+      border-color: rgba(255,95,122,0.8);
+      background: linear-gradient(180deg, rgba(52,18,22,0.95), rgba(30,12,16,0.9));
+    }
+
+    .success{
+      border-color: rgba(119,247,177,0.8);
+      background: linear-gradient(180deg, rgba(14,35,26,0.95), rgba(8,23,17,0.9));
+    }
+
+    .muted{
+      border-color: rgba(200,155,255,0.6);
+      background: linear-gradient(180deg, rgba(28,20,38,0.92), rgba(16,12,22,0.9));
+    }
+
+    .main-grid{
+      display: grid;
+      grid-template-columns: 1.05fr 1.55fr 1.1fr;
+      gap: 18px;
+      align-items: start;
+    }
+
+    .side-panel{
+      padding: 16px;
+    }
+
+    .card-title{
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      text-shadow: var(--shadow-cyan);
+    }
+
+    .stat-grid{
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px 12px;
+      margin-bottom: 10px;
+    }
+
+    .stat-item{
+      padding: 8px 10px;
+      border-radius: 10px;
+      border: 1px solid rgba(100,175,255,0.2);
+      background: rgba(112,157,255,0.04);
+    }
+
+    .label{
+      display: block;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+    }
+
+    .value{
+      font-size: 20px;
+      font-weight: 800;
+      color: var(--text);
+      text-shadow: 0 0 12px rgba(110,225,255,0.18);
+    }
+
+    .value.small{
+      font-size: 16px;
+    }
+
+    .value.pink{
+      color: var(--pink);
+      text-shadow: var(--shadow-pink);
+    }
+
+    .value.cyan{
+      color: var(--cyan);
+      text-shadow: var(--shadow-cyan);
+    }
+
+    .value.gold{
+      color: var(--gold);
+      text-shadow: 0 0 12px rgba(255,227,143,0.45);
+    }
+
+    .attr-list{
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .attr-row{
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 10px;
+      background: rgba(58,77,99,0.18);
+      border: 1px solid rgba(120,170,255,0.12);
+    }
+
+    .attr-name{
+      font-weight: 700;
+      color: var(--cyan-2);
+    }
+
+    .attr-value{
+      font-weight: 800;
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .small-button{
+      min-width: 34px;
+      padding: 6px 8px;
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    .middle-panel{
+      padding: 16px;
+      min-height: 600px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .scene-badges{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .scene-badge{
+      border-radius: 999px;
+      padding: 7px 12px;
+      border: 1px solid rgba(99,239,255,0.3);
+      background: rgba(99,239,255,0.07);
+      color: var(--cyan);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 700;
+    }
+
+    .scene-hero{
+      padding: 16px 18px;
+      border-radius: 14px;
+      background:
+        radial-gradient(circle at top left, rgba(255,122,230,0.10), transparent 45%),
+        linear-gradient(180deg, rgba(12,19,28,0.8), rgba(17,14,26,0.8));
+      border: 1px solid rgba(255,122,230,0.18);
+    }
+
+    .scene-title{
+      font-size: clamp(22px, 2vw, 30px);
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      color: var(--pink);
+      text-shadow: var(--shadow-pink);
+      margin-bottom: 10px;
+    }
+
+    .scene-text{
+      color: var(--text);
+      line-height: 1.75;
+      font-size: 15px;
+    }
+
+    .action-list{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 4px;
+    }
+
+    .action-list button{
+      flex: 1 1 180px;
+      min-height: 52px;
+      font-size: 14px;
+      padding: 12px 14px;
+    }
+
+    .subpanel{
+      border-radius: 12px;
+      border: 1px solid rgba(103,196,255,0.28);
+      background: rgba(16,22,30,0.78);
+      padding: 12px 14px;
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02);
+    }
+
+    .subpanel h3{
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--cyan);
+    }
+
+    .item-list{
+      display: grid;
+      gap: 8px;
+    }
+
+    .item-row{
+      display: grid;
+      grid-template-columns: 1fr auto auto;
+      align-items: center;
+      gap: 8px;
+      border-radius: 10px;
+      background: rgba(23,35,47,0.7);
+      padding: 8px 10px;
+      border: 1px solid rgba(100,175,255,0.13);
+    }
+
+    .item-name{
+      font-weight: 700;
+      color: var(--text);
+    }
+
+    .item-meta{
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 0.06em;
+      margin-top: 2px;
+    }
+
+    .item-cost{
+      color: var(--gold);
+      font-weight: 700;
+    }
+
+    .mini-btn{
+      font-size: 12px;
+      padding: 7px 10px;
+      min-width: 70px;
+    }
+
+    .inventory-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .logs{
+      display: grid;
+      gap: 18px;
+      margin-top: 18px;
+    }
+
+    .log-panel{
+      padding: 14px 16px;
+    }
+
+    .log-box{
+      background: rgba(7,15,22,0.7);
+      border: 1px solid rgba(110,160,255,0.16);
+      border-radius: 12px;
+      padding: 10px 12px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+
+    .log-entry{
+      padding: 7px 0;
+      border-bottom: 1px solid rgba(118,151,176,0.12);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 13px;
+    }
+
+    .log-entry:last-child{ border-bottom: none; }
+
+    .enemy-block{
+      padding: 16px;
+      border-radius: 14px;
+      background: linear-gradient(180deg, rgba(36,17,22,0.9), rgba(19,11,15,0.8));
+      border: 1px solid rgba(255,95,122,0.42);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.02), var(--shadow-pink);
+    }
+
+    .enemy-name{
+      font-size: 26px;
+      font-weight: 800;
+      color: var(--pink);
+      margin-bottom: 8px;
+      text-shadow: var(--shadow-pink);
+    }
+
+    .enemy-bar{
+      height: 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.08);
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.08);
+      margin: 10px 0 8px;
+    }
+
+    .enemy-bar-fill{
+      height: 100%;
+      background: linear-gradient(90deg, rgba(255,95,122,0.8), rgba(255,191,105,0.9));
+      box-shadow: 0 0 12px rgba(255,95,122,0.38);
+      transition: width 0.2s ease;
+    }
+
+    .battle-actions{
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .battle-actions button{
+      flex: 1 1 120px;
+    }
+
+    .empty{
+      color: var(--muted);
+      font-style: italic;
+      padding: 12px 4px;
+    }
+
+    @media (max-width: 1200px){
+      .main-grid{
+        grid-template-columns: 1fr;
+      }
+      .header{
+        grid-template-columns: 1fr;
+      }
+      .header-actions{ justify-content: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="header">
+      <div class="panel title-panel">
+        <div>
+          <div class="subtitle">赛博朋克文本RPG</div>
+          <div class="title neon">霓虹末路</div>
+        </div>
+        <div class="header-actions">
+          <button class="primary" id="saveBtn">保存</button>
+          <button class="muted" id="loadBtn">读档</button>
+          <button class="danger" id="newGameBtn">新游戏</button>
+        </div>
+      </div>
+
+      <div class="panel title-panel">
+        <div>
+          <div class="subtitle">当前状态</div>
+          <div class="title" style="font-size:28px; letter-spacing:0.08em;">夜行者档案</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="main-grid">
+      <aside class="panel side-panel">
+        <div class="card-title">角色卡</div>
+        <div id="playerCard"></div>
+      </aside>
+
+      <main class="panel middle-panel">
+        <div class="scene-badges" id="sceneBadges"></div>
+
+        <div class="scene-hero">
+          <div id="scenePanel"></div>
+        </div>
+
+        <div id="actionPanel" class="action-list"></div>
+
+        <div id="fightPanel"></div>
+
+        <div id="shopPanel" class="subpanel" style="display:none;"></div>
+
+        <div id="inventoryPanel" class="subpanel"></div>
+      </main>
+
+      <aside class="panel side-panel">
+        <div class="card-title">地图</div>
+        <div id="sceneButtons"></div>
+      </aside>
+    </div>
+
+    <div class="logs">
+      <div class="panel log-panel">
+        <div class="card-title">剧情日志</div>
+        <div id="storyLog" class="log-box"></div>
+      </div>
+
+      <div class="panel log-panel">
+        <div class="card-title">战斗日志</div>
+        <div id="battleLog" class="log-box"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const STORAGE_KEY = "cyberpunk_rpg_save_v1";
+
+    const itemCatalog = {
+      baton: { id: "baton", name: "伸缩警棍", kind: "weapon", damage: 8, price: 55, desc: "基础近战武器" },
+      saber: { id: "saber", name: "霓虹剑", kind: "weapon", damage: 16, price: 180, desc: "高能刀刃，适合近距离斩杀" },
+      pistol: { id: "pistol", name: "Aegis手枪", kind: "weapon", damage: 22, price: 260, desc: "稳定火力，远程压制" },
+      optic: { id: "optic", name: "光学接口", kind: "cyberware", armor: 4, hack: 2, price: 130, desc: "视觉增强与信息解析" },
+      spine: { id: "spine", name: "钢骨脊柱", kind: "cyberware", armor: 8, str: 1, price: 210, desc: "增强骨架承压能力" },
+      glands: { id: "glands", name: "肾上腺腺体", kind: "cyberware", agi: 2, price: 170, desc: "提升反应和机动" },
+      charm: { id: "charm", name: "社交芯片", kind: "cyberware", cha: 2, price: 160, desc: "让你更容易撬动人心" },
+      medPatch: { id: "medPatch", name: "医疗补丁", kind: "consumable", heal: 25, price: 18, desc: "快速止血修复" },
+      stim: { id: "stim", name: "兴奋针剂", kind: "consumable", heal: 12, armor: 8, price: 28, desc: "短暂强化战斗状态" },
+      repairKit: { id: "repairKit", name: "修复套件", kind: "consumable", armor: 12, price: 20, desc: "修补义体和防护装甲" },
+      ecm: { id: "ecm", name: "ECM干扰器", kind: "consumable", hack: 12, price: 46, desc: "用于压制和破坏敌方信号" }
+    };
+
+    const sceneCatalog = {
+      neon: {
+        id: "neon",
+        title: "霓虹街区",
+        desc: "高楼间的广告像潮水一样流动，霓虹灯把每一条小巷都渲染成一串快节奏的脉冲。你在这里能接到最出名的线索，也最容易被人抬头看一眼。",
+        shop: ["medPatch", "stim", "repairKit"]
+      },
+      blackmarket: {
+        id: "blackmarket",
+        title: "黑市",
+        desc: "每一扇铁门背后都藏着一笔生意。货物流动比血液还快，黑市人脉的交易从来不会问你是谁，只问你愿意出多少钱。",
+        shop: ["baton", "saber", "optic", "glands", "pistol", "stim", "repairKit"]
+      },
+      clinic: {
+        id: "clinic",
+        title: "诊所",
+        desc: "这里的白色灯光像无声的祷告，修复义体和重建身体的价格都比你想象中更低。医生比警察更会审视你的未来。",
+        shop: ["medPatch", "stim", "repairKit"]
+      },
+      hackers: {
+        id: "hackers",
+        title: "黑客窝点",
+        desc: "一整座旧仓库里全是沉默的屏幕和发热的主机。每一个人都在试图窃取更大的网络，谁最后笑到最后，不重要，重要的是你拿到了多少数据。",
+        shop: ["optic", "charm", "ecm", "medPatch"]
+      },
+      precinct: {
+        id: "precinct",
+        title: "警署",
+        desc: "铁门与监控角度设计得极尽深谋远虑。你站在这里，如同站在一条极窄的裂缝里，任何一个决定都可能决定你的明天。",
+        shop: []
+      }
+    };
+
+    const enemyCatalog = {
+      thug: {
+        name: "街头暴徒",
+        hp: 70,
+        armor: 12,
+        damage: 14,
+        skills: ["重拳", "撕裂", "冲撞"],
+        reward: 30
+      },
+      enforcer: {
+        name: "黑帮打手",
+        hp: 85,
+        armor: 18,
+        damage: 18,
+        skills: ["裂骨棒", "翻滚冲撞", "诱骗"],
+        reward: 55
+      },
+      drone: {
+        name: "侦察无人机",
+        hp: 60,
+        armor: 22,
+        damage: 12,
+        skills: ["电子锁定", "发射脉冲", "震慑"],
+        reward: 40
+      },
+      ranger: {
+        name: "警察围捕组",
+        hp: 100,
+        armor: 24,
+        damage: 20,
+        skills: ["镇压", "拦截", "追踪"],
+        reward: 80
+      },
+      boss: {
+        name: "城市掠夺者",
+        hp: 115,
+        armor: 30,
+        damage: 22,
+        skills: ["裂颅斩", "爆裂冲刺", "破甲击"],
+        reward: 110
+      }
+    };
+
+    let state = null;
+
+    function getItemDef(itemId) {
+      return itemCatalog[itemId] || null;
+    }
+
+    function deepClone(obj) {
+      return JSON.parse(JSON.stringify(obj));
+    }
+
+    function createInitialState() {
+      return {
+        player: {
+          name: "夜行者",
+          level: 1,
+          xp: 0,
+          upgradePoints: 2,
+          hp: 100,
+          maxHp: 100,
+          armor: 18,
+          rep: 0,
+          money: 120,
+          stats: { str: 5, agi: 5, hack: 5, cha: 5 },
+          weaponId: "baton",
+          equippedCyberIds: ["optic"],
+          attack: 18,
+          critChance: 0.12,
+          dodgeChance: 0.28
+        },
+        inventory: [
+          { id: "baton", kind: "weapon" },
+          { id: "optic", kind: "cyberware" },
+          { id: "medPatch", kind: "consumable" },
+          { id: "medPatch", kind: "consumable" },
+          { id: "repairKit", kind: "consumable" }
+        ],
+        currentScene: "neon",
+        currentEvent: null,
+        battle: null,
+        story: {
+          mainStage: 0,
+          mainBranch: null,
+          ending: null,
+          side: {
+            clinic: false,
+            hacker: false,
+            blackmarket: false,
+            police: false
+          },
+          npc: {
+            fixer: "neutral",
+            clinic: "neutral",
+            hacker: "neutral",
+            police: "neutral",
+            gang: "neutral"
+          }
+        },
+        logs: {
+          story: [
+            "你从霓虹街区的废弃天台醒来，胸口还残留着一串神秘的数字：0421。",
+            "现在是新一轮的夜行，你的名字在黑网上开始发光。"
+          ],
+          battle: [
+            "战斗日志已启动。任何一场冲突都可能改写你的人生航线。"
+          ]
+        }
+      };
+    }
+
+    function loadOrCreateState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return createInitialState();
+        const parsed = JSON.parse(raw);
+        if (!parsed || !parsed.player) return createInitialState();
+        return parsed;
+      } catch (e) {
+        return createInitialState();
+      }
+    }
+
+    function computeDerivedStats() {
+      const p = state.player;
+      const weapon = getItemDef(p.weaponId);
+
+      let maxHp = 100 + p.stats.str * 7;
+      let armor = 18;
+      let attack = weapon ? weapon.damage + p.stats.str * 2 : 6 + p.stats.str * 2;
+      let dodgeChance = 0.18 + p.stats.agi * 0.04;
+      let critChance = 0.08 + p.stats.agi * 0.02 + (p.stats.hack * 0.005);
+
+      for (const cyberId of p.equippedCyberIds) {
+        const cyber = getItemDef(cyberId);
+        if (!cyber) continue;
+        maxHp += cyber.maxHp || 0;
+        armor += cyber.armor || 0;
+        attack += cyber.damage || 0;
+        p.stats.str += cyber.str || 0;
+        p.stats.agi += cyber.agi || 0;
+        p.stats.hack += cyber.hack || 0;
+        p.stats.cha += cyber.cha || 0;
+      }
+
+      p.maxHp = maxHp;
+      p.armor = armor;
+      p.attack = attack;
+      p.critChance = Math.min(0.45, critChance);
+      p.dodgeChance = Math.min(0.6, dodgeChance);
+      if (p.hp > p.maxHp) p.hp = p.maxHp;
+      if (p.hp < 0) p.hp = 0;
+    }
+
+    function addStoryLog(text) {
+      state.logs.story.unshift(text);
+      if (state.logs.story.length > 12) state.logs.story.pop();
+    }
+
+    function addBattleLog(text) {
+      state.logs.battle.unshift(text);
+      if (state.logs.battle.length > 12) state.logs.battle.pop();
+    }
+
+    function saveGame() {
+      const payload = JSON.stringify(state);
+      localStorage.setItem(STORAGE_KEY, payload);
+      addStoryLog("进度已保存到本地存档。");
+      render();
+    }
+
+    function loadGame() {
+      const data = loadOrCreateState();
+      state = data;
+      addStoryLog("本地存档已载入。");
+      render();
+    }
+
+    function resetGame() {
+      state = createInitialState();
+      addStoryLog("全新夜行者档案已生成。");
+      render();
+    }
+
+    function findInventoryById(id, kind) {
+      return state.inventory.find(item => item.id === id && item.kind === kind);
+    }
+
+    function getItemCount(id, kind) {
+      return state.inventory.filter(item => item.id === id && item.kind === kind).length;
+    }
+
+    function addItemToInventory(id, kind) {
+      state.inventory.push({ id, kind });
+    }
+
+    function removeItemById(id, kind) {
+      const index = state.inventory.findIndex(item => item.id === id && item.kind === kind);
+      if (index >= 0) {
+        state.inventory.splice(index, 1);
+        return true;
+      }
+      return false;
+    }
+
+    function isWeaponEquipped(id) {
+      return state.player.weaponId === id;
+    }
+
+    function isCyberEquipped(id) {
+      return state.player.equippedCyberIds.includes(id);
+    }
+
+    function ensureSmallEnough() {
+      if (state.player.hp <= 0) {
+        state.player.hp = Math.max(30, Math.floor(state.player.maxHp * 0.35));
+        state.player.armor = Math.max(8, Math.floor(state.player.armor * 0.6));
+        state.currentScene = "clinic";
+        addStoryLog("你被击倒，醒来时发现自己躺在诊所的治疗台上。代价：失去了部分资金与信誉。");
+        state.player.money = Math.max(0, state.player.money - 25);
+        state.player.rep = Math.max(-20, state.player.rep - 5);
+        if (state.battle) state.battle = null;
+      }
+    }
+
+    function renderPlayerCard() {
+      const p = state.player;
+      const weapon = getItemDef(p.weaponId);
+      const armorBonus = p.armor;
+      const card = document.getElementById("playerCard");
+
+      const statHtml = `
+        <div class="stat-grid">
+          <div class="stat-item">
+            <span class="label">生命</span>
+            <span class="value cyan">${Math.max(0, p.hp)}/${p.maxHp}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">护甲</span>
+            <span class="value small">${armorBonus}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">义体</span>
+            <span class="value small">${p.equippedCyberIds.length}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">声望</span>
+            <span class="value pink">${p.rep}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">金钱</span>
+            <span class="value gold">${p.money}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">武器</span>
+            <span class="value small">${weapon ? weapon.name : "空手"}</span>
+          </div>
+        </div>
+        <div class="attr-list">
+          ${Object.entries(p.stats).map(([key, value]) => `
+            <div class="attr-row">
+              <span class="attr-name">${key === "str" ? "力量" : key === "agi" ? "敏捷" : key === "hack" ? "黑客" : "魅力"}</span>
+              <span class="attr-value">${value}</span>
+              <button class="small-button" ${p.upgradePoints <= 0 ? "disabled" : ""} data-upgrade="${key}">+</button>
+            </div>
+          `).join("")}
+        </div>
+        <div class="stat-grid" style="margin-top:12px;">
+          <div class="stat-item">
+            <span class="label">等级</span>
+            <span class="value small">${p.level}</span>
+          </div>
+          <div class="stat-item">
+            <span class="label">加点</span>
+            <span class="value small">${p.upgradePoints}</span>
+          </div>
+        </div>
+      `;
+
+      card.innerHTML = statHtml;
+
+      card.querySelectorAll("[data-upgrade]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const key = btn.getAttribute("data-upgrade");
+          if (state.player.upgradePoints <= 0) return;
+          state.player.stats[key] += 1;
+          state.player.upgradePoints -= 1;
+          addStoryLog(`${key === "str" ? "力量" : key === "agi" ? "敏捷" : key === "hack" ? "黑客" : "魅力"}提升了一级。`);
+          render();
+        });
+      });
+    }
+
+    function renderSceneButtons() {
+      const sceneButtons = document.getElementById("sceneButtons");
+      const scenes = ["neon", "blackmarket", "clinic", "hackers", "precinct"];
+      sceneButtons.innerHTML = "";
+
+      scenes.forEach(sceneId => {
+        const scene = sceneCatalog[sceneId];
+        const btn = document.createElement("button");
+        btn.textContent = scene.title;
+        btn.className = state.currentScene === sceneId ? "primary" : "";
+        btn.style.marginBottom = "8px";
+        btn.style.width = "100%";
+        btn.addEventListener("click", () => {
+          state.currentScene = sceneId;
+          if (sceneId === "neon" || sceneId === "blackmarket") {
+            if (!state.currentEvent && Math.random() < 0.42) {
+              state.currentEvent = generateStreetEvent();
+            }
+          } else {
+            state.currentEvent = null;
+          }
+          addStoryLog(`你前往${scene.title}。`);
+          render();
+        });
+        sceneButtons.appendChild(btn);
+      });
+    }
+
+    function renderScenePanel() {
+      const scene = sceneCatalog[state.currentScene];
+      const scenePanel = document.getElementById("scenePanel");
+      const badges = document.getElementById("sceneBadges");
+
+      const npcStatus = `
+        线人：${state.story.npc.fixer} / 诊所：${state.story.npc.clinic} / 黑客：${state.story.npc.hacker} / 警方：${state.story.npc.police}
+      `;
+      badges.innerHTML = `
+        <span class="scene-badge">${scene.title}</span>
+        <span class="scene-badge">声望 ${state.player.rep}</span>
+        <span class="scene-badge">金钱 ${state.player.money}</span>
+      `;
+
+      scenePanel.innerHTML = `
+        <div class="scene-title">${scene.title}</div>
+        <div class="scene-text">${scene.desc}</div>
+        <div class="scene-text" style="margin-top: 10px; color: var(--muted);">
+          ${npcStatus}
+        </div>
+      `;
+    }
+
+    function generateStreetEvent() {
+      const pool = [
+        {
+          id: "robbery",
+          title: "街头抢劫",
+          text: "一名行人被两名蒙面匪徒逼到角落，手里还抓着一个装着加密芯片的包。",
+          choices: [
+            { label: "帮忙拖住匪徒", effect: "save", reward: "声望 +6 / 金钱 +20" },
+            { label: "悄悄跟进，等机会拿走包裹", effect: "steal", reward: "金钱 +35 / 声望 -6" },
+            { label: "转身离开，避免卷入", effect: "leave", reward: "未产生行动" }
+          ]
+        },
+        {
+          id: "merchant",
+          title: "偶遇商人",
+          text: "一个在地缘交易圈里常见的商人突然出现，手里握着一捆未登记的义体零件。",
+          choices: [
+            { label: "低价收购", effect: "buy", reward: "花费 45 / 获得 1 个补丁与 1 个义体组件" },
+            { label: "甩开他，继续前进", effect: "ignore", reward: "不产生变化" },
+            { label: "以情报换取亮点", effect: "trade", reward: "声望 +4 / 金钱 +15" }
+          ]
+        },
+        {
+          id: "intel",
+          title: "情报交易",
+          text: "一个失踪的线人给你留下一条消息：有一个人愿意花高价买下警署的内部数据。",
+          choices: [
+            { label: "卖给黑市", effect: "sellIntel", reward: "金钱 +80 / 警方敌意 +1" },
+            { label: "保密，交给自己的人", effect: "keepIntel", reward: "声望 +8 / 黑客关系 +1" },
+            { label: "直接去警署报信", effect: "alertPolice", reward: "声望 -5 / 警方关系 +1" }
+          ]
+        },
+        {
+          id: "police",
+          title: "警察追捕",
+          text: "你从转角处看到警灯亮起，一辆警车贴着你开过来，车里的警员正在检查每个路人。",
+          choices: [
+            { label: "利用黑客手段摆脱追踪", effect: "hackEscape", reward: "黑客 +1 / 声望 +3" },
+            { label: "投递一份虚假证据", effect: "fakeTrail", reward: "金钱 -15 / 警方敌意 -1" },
+            { label: "干脆跑进巷道逃离", effect: "runAway", reward: "声望 +2 / 可能受伤" }
+          ]
+        }
+      ];
+
+      return pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    function resolveStreetEvent(choice) {
+      const event = state.currentEvent;
+      if (!event) return;
+      switch (choice.effect) {
+        case "save":
+          state.player.rep += 6;
+          state.player.money += 20;
+          state.story.npc.hacker = "friendly";
+          addStoryLog("你挡在匪徒面前，压制住了局势，受害者对你留下深刻印象。");
+          break;
+        case "steal":
+          state.player.money += 35;
+          state.player.rep = Math.max(-30, state.player.rep - 6);
+          state.story.npc.gang = "hostile";
+          addStoryLog("你趁乱拿走了包裹，但这张面孔已经被人记住了。");
+          break;
+        case "leave":
+          addStoryLog("你以不干涉为优先，事后只留下模糊的回忆。");
+          break;
+        case "buy":
+          if (state.player.money >= 45) {
+            state.player.money -= 45;
+            addItemToInventory("medPatch", "consumable");
+            addItemToInventory("repairKit", "consumable");
+            state.story.npc.gang = "neutral";
+            addStoryLog("你花了代价换到一批来自地下市场的零件和药品。");
+          } else {
+            addStoryLog("你钱不够，商人只是笑着让你以后再来。");
+          }
+          break;
+        case "ignore":
+          addStoryLog("你没有接受他给出的交易，商人只得继续沿街走动。");
+          break;
+        case "trade":
+          state.player.money += 15;
+          state.player.rep += 4;
+          addStoryLog("你用一个小线索换来一点好处，看看谁才是这座城最会说话的人。");
+          break;
+        case "sellIntel":
+          state.player.money += 80;
+          state.story.npc.police = "hostile";
+          addStoryLog("你把内线情报卖给了黑市，警署很快会知道有人在做这件事。");
+          break;
+        case "keepIntel":
+          state.player.rep += 8;
+          state.story.npc.hacker = "friendly";
+          addStoryLog("你决定保留情报，交给自己的网络兄弟，黑客圈的人开始给你分外的关注。");
+          break;
+        case "alertPolice":
+          state.player.rep -= 5;
+          state.story.npc.police = "friendly";
+          addStoryLog("你把消息交给警方，换来的是一张警笛声和一段沉默。");
+          break;
+        case "hackEscape":
+          state.player.stats.hack += 1;
+          state.player.rep += 3;
+          addStoryLog("你使用栈中的路由和干扰装置，成功摆脱了警车的追踪。");
+          break;
+        case "fakeTrail":
+          state.player.money = Math.max(0, state.player.money - 15);
+          state.story.npc.police = "neutral";
+          addStoryLog("你在匆忙间制造出一条假线索，警方暂时被引走了方向。");
+          break;
+        case "runAway":
+          state.player.rep += 2;
+          const hit = Math.random() < 0.45 ? 10 : 0;
+          state.player.hp = Math.max(0, state.player.hp - hit);
+          addStoryLog("你跑进黑暗巷道，虽然耗尽了体力，但还是逃掉了。");
+          break;
+      }
+
+      state.currentEvent = null;
+      render();
+    }
+
+    function resolveMainEnding(choice) {
+      const branch = state.story.mainBranch;
+      const p = state.player;
+      if (!branch) return;
+
+      switch (branch) {
+        case "hackers":
+          if (choice === "truth") {
+            p.rep += 20;
+            state.story.npc.hacker = "friendly";
+            state.story.ending = "《幽灵在网》：你公开了监控与贪污的数字，城市一夜间开始向光亮走去。";
+          } else if (choice === "sell") {
+            p.money += 200;
+            state.story.npc.police = "hostile";
+            state.story.ending = "《数据卖家》：你卖出数据，把一座城市的秘密藏进了一个保险箱里。";
+          } else {
+            p.rep += 12;
+            state.story.npc.clinic = "friendly";
+            state.story.ending = "《夜行者的善意》：你把情报交给匿名救助者，换回一条还活着的命。";
+          }
+          break;
+        case "blackmarket":
+          if (choice === "run") {
+            p.rep += 10;
+            p.money += 140;
+            state.story.npc.gang = "hostile";
+            state.story.ending = "《黑市逃亡》：你在一场交接中保住了货物和生命，成了黑市传说。";
+          } else if (choice === "deal") {
+            p.rep -= 6;
+            state.story.npc.police = "neutral";
+            state.story.ending = "《利益交换》：你拿利益换取活路，城市不会记住你的善意。";
+          } else {
+            p.rep += 16;
+            state.story.npc.fixer = "friendly";
+            state.story.ending = "《人情账》：你救下了一名被当作筹码的人，黑市开始把你当成盟友。";
+          }
+          break;
+        case "police":
+          if (choice === "expose") {
+            p.rep += 18;
+            state.story.npc.police = "hostile";
+            state.story.ending = "《正义轮廓》：你向公众揭开了警署的灰色交易，几乎要把一座城市的守法体系撕裂。";
+          } else if (choice === "quiet") {
+            p.money += 90;
+            state.story.npc.police = "neutral";
+            state.story.ending = "《沉默协定》：你保住了命，也保住了那点可怜的尊严。";
+          } else {
+            p.rep += 12;
+            state.story.npc.clinic = "friendly";
+            state.story.ending = "《证人之门》：你拯救了目击者，换来城市边缘一处安全岛。";
+          }
+          break;
+      }
+
+      addStoryLog(`主线落幕：${state.story.ending}`);
+      state.story.mainStage = 3;
+      render();
+    }
+
+    function startMainQuest(branch) {
+      if (state.story.mainStage !== 0) return;
+
+      state.story.mainBranch = branch;
+      state.story.mainStage = 1;
+
+      if (branch === "hackers") {
+        addStoryLog("主线启动：你被邀请潜入黑客窝点，拿到一份关乎警署腐败的数据库镜像。");
+        state.story.npc.hacker = "curious";
+      } else if (branch === "blackmarket") {
+        addStoryLog("主线启动：你接到一单黑市护送任务，仓库里装着一盒会让城市变天的秘密。");
+        state.story.npc.fixer = "curious";
+      } else {
+        addStoryLog("主线启动：你收到警署内部线人的求救，命令你在黑暗里把一条证据线铺开。");
+        state.story.npc.police = "curious";
+      }
+
+      render();
+    }
+
+    function progressMainQuest() {
+      if (state.story.mainStage !== 1) return;
+      const branch = state.story.mainBranch;
+
+      state.story.mainStage = 2;
+      if (branch === "hackers") {
+        addStoryLog("你已进入关键节点：黑客窝点里藏着一份更大的文件，接下来你必须在利益和良知之间做出选择。");
+      } else if (branch === "blackmarket") {
+        addStoryLog("交接点已经排好，你有机会拿到货物，也可能拿到死亡。");
+      } else {
+        addStoryLog("你已经触碰到警署深处的缺口，下一步就是揭露还是封口。");
+      }
+
+      render();
+    }
+
+    function runSideQuest(task) {
+      if (task === "clinic") {
+        if (state.story.side.clinic) {
+          addStoryLog("诊所的义体修复已经完成，你的身体和心智都比昨天更稳定。");
+          return;
+        }
+        state.story.side.clinic = true;
+        state.player.rep += 5;
+        state.player.hp = state.player.maxHp;
+        state.player.armor += 6;
+        state.story.npc.clinic = "friendly";
+        addStoryLog("你在诊所换上了更稳固的修复装置，身体恢复到最好的状态。");
+      }
+
+      if (task === "hacker") {
+        if (state.story.side.hacker) {
+          addStoryLog("黑客窝点的任务已经完成，网络上已经留下你的踪迹。");
+          return;
+        }
+        state.story.side.hacker = true;
+        state.player.rep += 7;
+        state.player.money += 40;
+        state.story.npc.hacker = "friendly";
+        addStoryLog("你在黑客窝点完成了一次加密破译，对方愿意给你贴上“可靠网络协作者”的标签。");
+      }
+
+      if (task === "blackmarket") {
+        if (state.story.side.blackmarket) {
+          addStoryLog("黑市护送任务已结案，货单上你的名字已经变成了一个可以买卖的筹码。");
+          return;
+        }
+        state.story.side.blackmarket = true;
+        state.player.money += 60;
+        state.story.npc.gang = "neutral";
+        addStoryLog("你完成了黑市护送，赚到了一笔不小的现金，不过周围所有人都知道你不是普通行商。");
+      }
+
+      if (task === "police") {
+        if (state.story.side.police) {
+          addStoryLog("警署线人任务已经结案，内部的幽灵正在你耳边窃窃私语。");
+          return;
+        }
+        state.story.side.police = true;
+        state.player.rep += 4;
+        state.story.npc.police = "curious";
+        addStoryLog("你在警署里潜伏了一夜，拿到了一个能让你变强的内部情报。");
+      }
+
+      render();
+    }
+
+    function renderActionButtons() {
+      const actionPanel = document.getElementById("actionPanel");
+      actionPanel.innerHTML = "";
+
+      const actions = [];
+
+      if (state.currentEvent) {
+        state.currentEvent.choices.forEach(choice => {
+          actions.push({
+            label: `${choice.label} · ${choice.reward}`,
+            onClick: () => resolveStreetEvent(choice)
+          });
+        });
+      }
+
+      if (state.story.mainStage === 0) {
+        actions.push({ label: "接取主线：黑客窝点", onClick: () => startMainQuest("hackers") });
+        actions.push({ label: "接取主线：黑市交接", onClick: () => startMainQuest("blackmarket") });
+        actions.push({ label: "接取主线：警署潜入", onClick: () => startMainQuest("police") });
+      }
+
+      if (state.story.mainStage === 1) {
+        actions.push({ label: "推进主线剧情", onClick: progressMainQuest });
+      }
+
+      if (state.story.mainStage === 2) {
+        const branch = state.story.mainBranch;
+        if (branch === "hackers") {
+          actions.push({ label: "公开真相", onClick: () => resolveMainEnding("truth") });
+          actions.push({ label: "出售情报给大公司", onClick: () => resolveMainEnding("sell") });
+          actions.push({ label: "交给救助者，保全无辜", onClick: () => resolveMainEnding("save") });
+        } else if (branch === "blackmarket") {
+          actions.push({ label: "直接逃走", onClick: () => resolveMainEnding("run") });
+          actions.push({ label: "接受交易以换取活路", onClick: () => resolveMainEnding("deal") });
+          actions.push({ label: "救下被当成筹码的人", onClick: () => resolveMainEnding("rescue") });
+        } else if (branch === "police") {
+          actions.push({ label: "曝光腐败", onClick: () => resolveMainEnding("expose") });
+          actions.push({ label: "沉默交易换生路", onClick: () => resolveMainEnding("quiet") });
+          actions.push({ label: "救出证人", onClick: () => resolveMainEnding("witness") });
+        }
+      }
+
+      if (!state.currentEvent && state.story.mainStage < 2) {
+        actions.push({ label: "随机街头事件", onClick: () => {
+          state.currentEvent = generateStreetEvent();
+          addStoryLog("夜晚又开始有新的事件在街角浮现。");
+          render();
+        }});
+      }
+
+      if (state.currentScene === "clinic" && !state.story.side.clinic) {
+        actions.push({ label: "支线任务：诊所修复义体", onClick: () => runSideQuest("clinic") });
+      }
+      if (state.currentScene === "hackers" && !state.story.side.hacker) {
+        actions.push({ label: "支线任务：黑客窝点破解", onClick: () => runSideQuest("hacker") });
+      }
+      if (state.currentScene === "blackmarket" && !state.story.side.blackmarket) {
+        actions.push({ label: "支线任务：护送黑市货物", onClick: () => runSideQuest("blackmarket") });
+      }
+      if (state.currentScene === "precinct" && !state.story.side.police) {
+        actions.push({ label: "支线任务：警署卧底行动", onClick: () => runSideQuest("police") });
+      }
+
+      if (state.story.ending) {
+        actions.push({ label: "查看结局与收尾", onClick: () => {
+          addStoryLog(`终局：${state.story.ending}`);
+          render();
+        }});
+      }
+
+      actions.forEach(item => {
+        const btn = document.createElement("button");
+        btn.textContent = item.label;
+        btn.className = "primary";
+        btn.onclick = item.onClick;
+        actionPanel.appendChild(btn);
+      });
+
+      if (actions.length === 0) {
+        const empty = document.createElement("div");
+        empty.className = "empty";
+        empty.textContent = "这里没有可执行的行动。";
+        actionPanel.appendChild(empty);
+      }
+    }
+
+    function renderInventory() {
+      const wrap = document.getElementById("inventoryPanel");
+      const groups = {
+        weapon: "武器",
+        cyberware: "义体插件",
+        consumable: "消耗品"
+      };
+
+      const html = Object.keys(groups).map(kind => {
+        const items = state.inventory.filter(item => item.kind === kind);
+        const rows = items.length
+          ? items.map(item => {
+              const def = getItemDef(item.id);
+              const isEquipped = kind === "weapon" ? isWeaponEquipped(item.id) : isCyberEquipped(item.id);
+
+              const buttons = [];
+              if (kind === "weapon") {
+                buttons.push(`<button class="mini-btn ${isEquipped ? "success" : ""}" data-action="equip" data-id="${item.id}" data-kind="${kind}">${isEquipped ? "已装备" : "装备"}</button>`);
+              } else if (kind === "cyberware") {
+                buttons.push(`<button class="mini-btn ${isEquipped ? "success" : ""}" data-action="equip-cyber" data-id="${item.id}" data-kind="${kind}">${isEquipped ? "已装备" : "装配"}</button>`);
+              } else {
+                buttons.push(`<button class="mini-btn" data-action="use-item" data-id="${item.id}" data-kind="${kind}">使用</button>`);
+              }
+
+              return `
+                <div class="item-row">
+                  <div>
+                    <div class="item-name">${def.name}</div>
+                    <div class="item-meta">${def.desc || "装备物品"}</div>
+                  </div>
+                  <div class="item-cost">${kind === "consumable" ? "药品" : kind === "weapon" ? "武器" : "义体"}</div>
+                  <div style="display:flex;gap:6px;justify-content:flex-end;">${buttons.join("")}</div>
+                </div>
+              `;
+            }).join("")
+          : `<div class="empty">暂无${groups[kind]}。</div>`;
+
+        return `
+          <div style="margin-bottom:14px;">
+            <h3>${groups[kind]}</h3>
+            <div class="item-list">${rows}</div>
+          </div>
+        `;
+      }).join("");
+
+      wrap.innerHTML = html;
+
+      wrap.querySelectorAll("[data-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          const action = btn.getAttribute("data-action");
+          const itemId = btn.getAttribute("data-id");
+          const kind = btn.getAttribute("data-kind");
+
+          if (action === "equip") {
+            state.player.weaponId = itemId;
+            addStoryLog(`${getItemDef(itemId).name} 已装备。`);
+            render();
+          } else if (action === "equip-cyber") {
+            if (isCyberEquipped(itemId)) {
+              const idx = state.player.equippedCyberIds.indexOf(itemId);
+              state.player.equippedCyberIds.splice(idx, 1);
+              addStoryLog(`${getItemDef(itemId).name} 已卸下。`);
+            } else {
+              state.player.equippedCyberIds.push(itemId);
+              addStoryLog(`${getItemDef(itemId).name} 已装配到义体槽位。`);
+            }
+            render();
+          } else if (action === "use-item") {
+            useConsumable(itemId);
+          }
+        });
+      });
+    }
+
+    function renderShop() {
+      const shopDiv = document.getElementById("shopPanel");
+      const scene = sceneCatalog[state.currentScene];
+      const stock = scene.shop || [];
+
+      if (!stock.length) {
+        shopDiv.style.display = "none";
+        return;
+      }
+
+      const items = stock.map(itemId => {
+        const def = getItemDef(itemId);
+        if (!def) return "";
+        return `
+          <div class="item-row">
+            <div>
+              <div class="item-name">${def.name}</div>
+              <div class="item-meta">${def.desc}</div>
+            </div>
+            <div class="item-cost">¥${def.price}</div>
+            <div style="display:flex; gap:6px;">
+              <button class="mini-btn" data-buy="${itemId}">购买</button>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      shopDiv.style.display = "block";
+      shopDiv.innerHTML = `
+        <h3>商店</h3>
+        <div class="item-list">${items}</div>
+        <div style="margin-top:12px; display:flex; flex-wrap:wrap; gap:8px;">
+          <button class="primary" data-sell-quick="sell">出售已持有物品</button>
+        </div>
+      `;
+
+      shopDiv.querySelectorAll("[data-buy]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          buyItem(btn.getAttribute("data-buy"));
+        });
+      });
+
+      shopDiv.querySelectorAll("[data-sell-quick]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          sellQuickItems();
+        });
+      });
+    }
+
+    function buyItem(itemId) {
+      const def = getItemDef(itemId);
+      if (!def) return;
+      if (state.player.money < def.price) {
+        addStoryLog(`你没有足够的金钱购买${def.name}。`);
+        return;
+      }
+      state.player.money -= def.price;
+      addItemToInventory(itemId, def.kind);
+      addStoryLog(`购买成功：${def.name}，花费 ¥${def.price}。`);
+      render();
+    }
+
+    function sellQuickItems() {
+      const sellable = state.inventory.filter(item => {
+        if (item.kind === "weapon" && state.player.weaponId === item.id) return false;
+        if (item.kind === "cyberware" && state.player.equippedCyberIds.includes(item.id)) return false;
+        return true;
+      });
+
+      if (!sellable.length) {
+        addStoryLog("你没有可出售的物品。");
+        return;
+      }
+
+      const item = sellable[0];
+      const def = getItemDef(item.id);
+      const gain = Math.max(8, Math.floor(def.price * 0.65));
+      removeItemById(item.id, item.kind);
+      state.player.money += gain;
+      addStoryLog(`你卖出了${def.name}，获得 ¥${gain}。`);
+      render();
+    }
+
+    function useConsumable(itemId) {
+      const def = getItemDef(itemId);
+      if (!def || def.kind !== "consumable") return;
+
+      const removed = removeItemById(itemId, "consumable");
+      if (!removed) return;
+      if (def.heal) {
+        state.player.hp = Math.min(state.player.maxHp, state.player.hp + def.heal);
+      }
+      if (def.armor) {
+        state.player.armor += def.armor;
+      }
+      addStoryLog(`使用${def.name}，恢复了${def.heal || 0}生命与${def.armor || 0}护甲。`);
+      render();
+    }
+
+    function startBattle(enemyId) {
+      const enemyDef = enemyCatalog[enemyId];
+      if (!enemyDef) return;
+
+      state.battle = {
+        enemyId,
+        enemy: {
+          name: enemyDef.name,
+          hp: enemyDef.hp,
+          maxHp: enemyDef.hp,
+          armor: enemyDef.armor,
+          damage: enemyDef.damage,
+          skills: enemyDef.skills,
+          reward: enemyDef.reward
+        },
+        log: []
+      };
+
+      addBattleLog(`遭遇敌人：${enemyDef.name}。`);
+      render();
+    }
+
+    function handleBattleAction(actionType) {
+      if (!state.battle) return;
+
+      const battle = state.battle;
+      const p = state.player;
+
+      if (actionType === "attack") {
+        const critA = Math.random() < p.critChance;
+        const base = p.attack + (critA ? 12 : 0);
+        const damage = Math.max(4, base - battle.enemy.armor);
+        battle.enemy.hp = Math.max(0, battle.enemy.hp - damage);
+        addBattleLog(`${critA ? "暴击！" : "攻击"}：造成 ${damage} 点伤害。`);
+        if (battle.enemy.hp <= 0) {
+          endBattle(true);
+          return;
+        }
+        enemyTurn();
+        render();
+      }
+
+      if (actionType === "dodge") {
+        const dodge = Math.random() < p.dodgeChance;
+        if (dodge) {
+          addBattleLog("你快速侧移，成功闪避了下一次攻击。");
+          battle.playerDodge = true;
+          enemyTurn();
+        } else {
+          addBattleLog("你试图闪避，但敌人提前抓住了你的位置。");
+          enemyTurn();
+        }
+        render();
+      }
+
+      if (actionType === "hack") {
+        const breach = Math.random() < 0.55 + p.stats.hack * 0.04;
+        if (breach) {
+          const damage = 8 + p.stats.hack * 2;
+          battle.enemy.armor = Math.max(0, battle.enemy.armor - 10);
+          battle.enemy.hp = Math.max(0, battle.enemy.hp - damage);
+          addBattleLog(`黑客入侵成功：破防 ${10}，造成 ${damage} 点伤害。`);
+        } else {
+          addBattleLog("黑客攻击被敌方防线压制，没能造成有效破坏。");
+        }
+        if (battle.enemy.hp <= 0) {
+          endBattle(true);
+          return;
+        }
+        enemyTurn();
+        render();
+      }
+
+      if (actionType === "useItem") {
+        const item = state.inventory.find(item => item.kind === "consumable");
+        if (!item) {
+          addBattleLog("你没有可用的消耗品。");
+          render();
+          return;
+        }
+        const def = getItemDef(item.id);
+        if (!def) return;
+
+        removeItemById(item.id, "consumable");
+        if (def.heal) state.player.hp = Math.min(state.player.maxHp, state.player.hp + def.heal);
+        if (def.armor) state.player.armor += def.armor;
+        addBattleLog(`使用${def.name}，恢复了${def.heal || 0}生命和${def.armor || 0}护甲。`);
+        enemyTurn();
+        render();
+      }
+
+      if (actionType === "flee") {
+        const chance = 0.5 + p.stats.agi * 0.04;
+        if (Math.random() < chance) {
+          addBattleLog("你及时撤退，敌人没能追上你。");
+          state.battle = null;
+          render();
+          return;
+        }
+        addBattleLog("你试图逃跑，但敌人的脚步比你更快。");
+        enemyTurn();
+        render();
+      }
+    }
+
+    function enemyTurn() {
+      if (!state.battle) return;
+
+      const battle = state.battle;
+      const p = state.player;
+
+      const skill = battle.enemy.skills[Math.floor(Math.random() * battle.enemy.skills.length)];
+      let dmg = battle.enemy.damage + Math.floor(Math.random() * 8);
+
+      if (battle.playerDodge) {
+        dmg = Math.max(2, Math.floor(dmg * 0.45));
+        battle.playerDodge = false;
+        addBattleLog(`你闪避成功，${skill}仅造成 ${dmg} 点伤害。`);
+      } else {
+        addBattleLog(`${battle.enemy.name}使用${skill}，造成 ${dmg} 点伤害。`);
+      }
+
+      const reduced = Math.max(0, dmg - Math.max(0, p.armor));
+      p.hp = Math.max(0, p.hp - reduced);
+      ensureSmallEnough();
+
+      if (p.hp <= 0) {
+        state.battle = null;
+        addBattleLog("你失去战斗能力，临死前看见一片星光。");
+        state.currentScene = "clinic";
+        render();
+        return;
+      }
+    }
+
+    function endBattle(won) {
+      if (!state.battle) return;
+      const battle = state.battle;
+      if (won) {
+        const reward = battle.enemy.reward;
+        state.player.money += reward;
+        state.player.rep += 4;
+        addStoryLog(`战斗胜利：你击败${battle.enemy.name}，获得¥${reward}与少量声望。`);
+        addBattleLog(`${battle.enemy.name}被打倒，战场上的电闪动静了。`);
+      }
+      state.battle = null;
+      render();
+    }
+
+    function renderBattle() {
+      const fightPanel = document.getElementById("fightPanel");
+      if (!state.battle) {
+        fightPanel.innerHTML = "";
+        return;
+      }
+
+      const enemy = state.battle.enemy;
+      const hpPercent = (enemy.hp / enemy.maxHp) * 100;
+      fightPanel.innerHTML = `
+        <div class="enemy-block">
+          <div class="enemy-name">${enemy.name}</div>
+          <div class="scene-text">护甲 ${enemy.armor} · 生命 ${enemy.hp}/${enemy.maxHp}</div>
+          <div class="enemy-bar">
+            <div class="enemy-bar-fill" style="width:${Math.max(0, hpPercent)}%;"></div>
+          </div>
+          <div class="battle-actions">
+            <button class="primary" data-battle-action="attack">攻击</button>
+            <button class="muted" data-battle-action="dodge">闪避</button>
+            <button class="primary" data-battle-action="hack">黑客入侵</button>
+            <button class="success" data-battle-action="useItem">使用道具</button>
+            <button class="danger" data-battle-action="flee">撤退</button>
+          </div>
+        </div>
+      `;
+
+      fightPanel.querySelectorAll("[data-battle-action]").forEach(btn => {
+        btn.addEventListener("click", () => {
+          handleBattleAction(btn.getAttribute("data-battle-action"));
+        });
+      });
+    }
+
+    function renderLogs() {
+      document.getElementById("storyLog").innerHTML = state.logs.story.map(log => `<div class="log-entry">${log}</div>`).join("");
+      document.getElementById("battleLog").innerHTML = state.logs.battle.map(log => `<div class="log-entry">${log}</div>`).join("");
+    }
+
+    function render() {
+      computeDerivedStats();
+      renderPlayerCard();
+      renderSceneButtons();
+      renderScenePanel();
+      renderActionButtons();
+      renderInventory();
+      renderShop();
+      renderBattle();
+      renderLogs();
+      document.title = `霓虹末路 · ${sceneCatalog[state.currentScene].title}`;
+    }
+
+    function bindHeaderButtons() {
+      document.getElementById("saveBtn").addEventListener("click", saveGame);
+      document.getElementById("loadBtn").addEventListener("click", loadGame);
+      document.getElementById("newGameBtn").addEventListener("click", () => {
+        if (confirm("确认开始新游戏？当前存档将被覆盖。")) {
+          resetGame();
+        }
+      });
+    }
+
+    function setupDemoBattle() {
+      if (!state.battle && Math.random() < 0.2) {
+        startBattle("thug");
+      }
+    }
+
+    function init() {
+      bindHeaderButtons();
+      state = loadOrCreateState();
+      if (!state.currentEvent && (state.currentScene === "neon" || state.currentScene === "blackmarket")) {
+        state.currentEvent = generateStreetEvent();
+      }
+      render();
+      setupDemoBattle();
+    }
+
+    document.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
