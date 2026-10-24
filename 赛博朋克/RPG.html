@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Neon Rift: Cyberpunk RPG</title>
+  <style>
+    :root {
+      --bg0: #050914;
+      --bg1: #0d1425;
+      --panel: rgba(13, 20, 37, 0.88);
+      --line: rgba(94, 242, 255, 0.25);
+      --cyan: #5ef2ff;
+      --pink: #ff4fd8;
+      --lime: #7dff9f;
+      --gold: #ffd166;
+      --red: #ff5c7a;
+      --white: #eaf6ff;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top, rgba(94,242,255,0.10), transparent 30%),
+        linear-gradient(180deg, #050914, #0b1020 40%, #101b2e);
+      color: var(--white);
+      font-family: "Segoe UI", "Microsoft YaHei", sans-serif;
+    }
+
+    .game {
+      width: min(920px, 100%);
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      overflow: hidden;
+      box-shadow:
+        0 0 30px rgba(94,242,255,0.12),
+        0 0 80px rgba(255,79,216,0.08);
+    }
+
+    .hud {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      background: rgba(8, 12, 24, 0.9);
+      border-bottom: 1px solid var(--line);
+      padding: 16px 20px;
+      flex-wrap: wrap;
+    }
+
+    .title {
+      font-weight: 700;
+      letter-spacing: 2px;
+      color: var(--cyan);
+      text-shadow: 0 0 12px rgba(94,242,255,0.75);
+    }
+
+    .stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: 14px;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 999px;
+      padding: 6px 10px;
+    }
+
+    .screen {
+      padding: 24px;
+      min-height: 560px;
+    }
+
+    .story {
+      background: rgba(255,255,255,0.02);
+      border: 1px solid rgba(94,242,255,0.12);
+      border-radius: 12px;
+      padding: 18px 18px 10px;
+      margin-bottom: 18px;
+      line-height: 1.8;
+      color: #edf8ff;
+    }
+
+    .story h2 {
+      margin: 0 0 10px;
+      color: var(--pink);
+      font-size: 1.2rem;
+      letter-spacing: 1px;
+    }
+
+    .story p {
+      margin: 0 0 12px;
+      color: #e6f1ff;
+    }
+
+    .choices {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+    }
+
+    button.choice {
+      appearance: none;
+      border: 1px solid rgba(94,242,255,0.3);
+      background:
+        linear-gradient(180deg, rgba(94,242,255,0.08), rgba(255,79,216,0.04));
+      color: var(--white);
+      padding: 14px 16px;
+      border-radius: 12px;
+      cursor: pointer;
+      text-align: left;
+      transition: 0.18s ease;
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    button.choice:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(94,242,255,0.18);
+      border-color: rgba(94,242,255,0.5);
+    }
+
+    .log {
+      margin-top: 20px;
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.05);
+      border-radius: 12px;
+      padding: 14px 16px;
+      min-height: 110px;
+      color: #cfe9ff;
+      line-height: 1.7;
+    }
+
+    .log-title {
+      color: var(--gold);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .ending {
+      display: none;
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: 12px;
+      background: rgba(255,79,216,0.08);
+      border: 1px solid rgba(255,79,216,0.28);
+      color: #f6ebff;
+      line-height: 1.8;
+    }
+
+    .ending.show {
+      display: block;
+    }
+
+    @media (max-width: 700px) {
+      .screen { padding: 16px; }
+      .choices { grid-template-columns: 1fr; }
+      .hud { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+  <div class="game">
+    <div class="hud">
+      <div class="title">NEON RIFT</div>
+      <div class="stats">
+        <div class="stat">HP: <b id="hp">100</b></div>
+        <div class="stat">信用: <b id="credits">120</b></div>
+        <div class="stat">神经: <b id="intel">60</b></div>
+        <div class="stat">声望: <b id="rep">0</b></div>
+      </div>
+    </div>
+
+    <div class="screen">
+      <div class="story">
+        <h2 id="location">街头</h2>
+        <p id="text"></p>
+      </div>
+
+      <div id="choices" class="choices"></div>
+
+      <div class="log">
+        <div class="log-title">行动记录</div>
+        <div id="logText">你从霓虹巷口醒来，城市的电流还在呼吸。</div>
+      </div>
+
+      <div id="ending" class="ending"></div>
+    </div>
+  </div>
+
+  <script>
+    const state = {
+      hp: 100,
+      credits: 120,
+      intel: 60,
+      rep: 0,
+      scene: 'start',
+      inventory: {
+        keycard: false,
+        encryptedDrive: false,
+        medPatch: false,
+        armor: false
+      }
+    };
+
+    const scenes = {
+      start: {
+        title: '霓虹巷口',
+        text: '你在 2127 年的夜城边缘醒来。霓虹广告像血一样在雾里流动，地面随时有人在你脚下留下数字。你收到一条消息：有人愿意付高价，换你帮他偷回一份被锁在 Skyline Tower 的人类记忆数据。',
+        choices: [
+          { text: '接受这份黑客工作，去找到线人', next: 'market' },
+          { text: '先去找医生修补你最近的神经损伤', next: 'clinic' },
+          { text: '对这座城市的阴影感到不安，选择离开', next: 'street' }
+        ]
+      },
+
+      market: {
+        title: '霓虹市场',
+        text: '你在市场里找到一个戴着全息面罩的线人。她递给你一枚微型钥匙卡，对你说：只有真正掌握“忘川系统”的人，才能打开数据仓库。她的价格是 80 信用和一次你未来的“人情”。',
+        choices: [
+          { text: '支付 80 信用，拿到钥匙卡', next: 'hub', effect: { credits: -80, inventory: { keycard: true } } },
+          { text: '拒绝交易，改走黑客论坛', next: 'hub' },
+          { text: '利用你的神经读数威胁她', next: 'brawl' }
+        ]
+      },
+
+      clinic: {
+        title: '修补所',
+        text: '一名机械医生在黑暗的药房里给你修补神经接口。她说：“如果你继续在黑网上沉浮，你的大脑不会再属于你。”你可以花费 40 信用，换取清晰的头脑；或者冒险继续前行。',
+        choices: [
+          { text: '付 40 信用，接受修补', next: 'market', effect: { credits: -40, intel: +10, hp: +15 } },
+          { text: '拒绝，继续追踪线索', next: 'hub' },
+          { text: '直接要求他做成“赛博体改造”', next: 'upgrade', effect: { hp: -20, intel: +20, rep: +5 } }
+        ]
+      },
+
+      street: {
+        title: '废弃高架',
+        text: '你站在废弃高架下，看着霓虹城肆意吞噬人群。一个流浪儿递给你一张旧纸片，上面写着：“有人在等你，明明是你自己的过去。”你忽然意识到你可能走进了一个更深层的背叛。',
+        choices: [
+          { text: '回头，继续追寻真相', next: 'hub' },
+          { text: '卖掉纸片换取生存资源', next: 'market', effect: { credits: +25, rep: -5 } },
+          { text: '吞下纸片，试图追忆自己的过往', next: 'memory', effect: { hp: -10, intel: +15 } }
+        ]
+      },
+
+      hub: {
+        title: '黑客论坛',
+        text: '你进到一个高密度的黑客本地网络里，匿名者们在海量数据流里争论。有人发来一段加密邮件：拒绝火星区的监控系统并拿到数据驱动器，就能制造一场真正的“信息革命”。',
+        choices: [
+          { text: '追踪邮件源头，潜入火星区', next: 'mars' },
+          { text: '寻找一位黑客导师，学习反监控技巧', next: 'mentor', effect: { intel: +15 } },
+          { text: '借助线人资源，直接去抢数据驱动器', next: 'heist', effect: { rep: +10 } }
+        ]
+      },
+
+      brawl: {
+        title: '街头冲突',
+        text: '你把话甩回去，线人不甘示弱，直接掏出激光枪。为了让自己活下去，你和她打在一起。冲突中你受伤了，但你也看见了她秘藏在口袋里的数据卡。',
+        choices: [
+          { text: '击倒她，拿走数据卡', next: 'hub', effect: { hp: -20, inventory: { encryptedDrive: true } } },
+          { text: '认输，离开现场', next: 'market', effect: { hp: -10, credits: -15 } },
+          { text: '把她说服成同伴', next: 'partner', effect: { rep: +10, inventory: { encryptedDrive: true } } }
+        ]
+      },
+
+      mentor: {
+        title: '导师之门',
+        text: '黑客导师“清醒者”在一个地下服务器仓里等你。他看了看你的数据，点头说：“你已经在被系统改写了。要么你成为它的一部分，要么你摧毁它。”',
+        choices: [
+          { text: '接受训练，从中学得操控网络的方式', next: 'mars', effect: { intel: +25, hp: +5 } },
+          { text: '拒绝培训，改全靠你本能', next: 'heist' },
+          { text: '让导师替你做一套防监控植入物', next: 'upgrade', effect: { credits: -50, hp: +10, rep: +5 } }
+        ]
+      },
+
+      mars: {
+        title: '火星区',
+        text: '你潜入火星区，那里满是虹膜识别、抬头就能看见监控的高楼。你在一间无人值守的机房里找到一台无人机和一块被加密的记忆驱动器。一堂课结束时，你发现它并非普通数据，而是某位权力核心的过去。',
+        choices: [
+          { text: '读取并复制数据，拼出真相', next: 'tower', effect: { inventory: { encryptedDrive: true }, intel: +10 } },
+          { text: '销毁驱动器，避免让权力更强大', next: 'finale', effect: { rep: +20 } },
+          { text: '拿着驱动器离开做卖家', next: 'boss', effect: { credits: +90, rep: -10 } }
+        ]
+      },
+
+      heist: {
+        title: '代码抢劫',
+        text: '你决定直接抢数据。你与安全守卫进行一场高压的赛博冲突，城市的警报声像发动机一样震醒整座城市。最后，你击倒了守卫，夺走了一个装满记忆的金属芯片。',
+        choices: [
+          { text: '打开芯片，看看里面是什么', next: 'tower', effect: { inventory: { encryptedDrive: true }, hp: -15 } },
+          { text: '把芯片卖给黑市', next: 'boss', effect: { credits: +120, rep: -15, hp: -10 } },
+          { text: '摧毁芯片，作为对过去的报复', next: 'finale', effect: { rep: +25 } }
+        ]
+      },
+
+      upgrade: {
+        title: '改造室',
+        text: '你在改造床上醒来，身体像被重新编排过。液态金属覆盖了你的一些关节，增强了你但也让你清楚地感受到自己的“脆弱”正在被替代。你知道，你不再只是一个人。',
+        choices: [
+          { text: '继续走向 Skyline Tower', next: 'tower', effect: { hp: +15, intel: +10, rep: +5 } },
+          { text: '回到街头，接受更深的黑市身份', next: 'boss', effect: { credits: +50, rep: +10 } },
+          { text: '设法和黑客圈对抗这个系统', next: 'finale', effect: { rep: +15 } }
+        ]
+      },
+
+      partner: {
+        title: '同行者',
+        text: '线人接受了你的提议，成为同伴。她告诉你一个更大的秘密：真正要偷窃的不是数据，而是“身世”。你和她一起潜入 Skyline Tower，那里藏着所有这个城市人心中的叙事。 ',
+        choices: [
+          { text: '去直攻核心服务器', next: 'tower', effect: { inventory: { keycard: true } } },
+          { text: '先获取更多情报', next: 'hub', effect: { intel: +10 } },
+          { text: '反转计划，揭露她的真实身份', next: 'finale', effect: { rep: +25 } }
+        ]
+      },
+
+      tower: {
+        title: 'Skyline Tower',
+        text: '塔顶的服务器舱里，巨大的屏幕正在播放一段城市的原始记忆：人类的压迫、监控、人工智能的听觉与人类奴役。你站在命运分叉口。你可以把真相揭露给城市，或者把它变成你自己的武器。',
+        choices: [
+          { text: '公开真相，让整个城市知道它曾被控制', next: 'finale', effect: { rep: +30 } },
+          { text: '利用真相换取权力和财富', next: 'boss', effect: { credits: +150, rep: +20 } },
+          { text: '把自己上传进数据网络，成为新神经系统的一部分', next: 'end_ai', effect: { hp: -30, intel: +30, rep: +5 } }
+        ]
+      },
+
+      boss: {
+        title: '黑市拍卖会',
+        text: '你在黑市中被一位大佬收留。他们愿意买下你的信息、你的技能和你未来的自由。你挣到了钱，也必须献出一部分自己。你终于成了权力的工具。',
+        choices: [
+          { text: '接受这份命运，成为黑市的核心人物', next: 'end_boss', effect: { credits: +120, rep: +15 } },
+          { text: '反叛并摧毁拍卖会', next: 'finale', effect: { rep: +20 } },
+          { text: '离开这个循环，去寻找真实人生', next: 'end_escape', effect: { hp: +20, rep: +10 } }
+        ]
+      },
+
+      finale: {
+        title: '真正的结局',
+        text: '你站在城市的最高点，手中握着旧时代和新时代的钥匙。你决定不再只是被技术塑造的人，而是成为重新塑造这座城市的人。你的选择将会改变所有人。 ',
+        choices: [
+          { text: '揭露真相，成为城市的自由之声', next: 'end_rebel' },
+          { text: '取代系统，带来新的秩序', next: 'end_order' },
+          { text: '摧毁一切，像一场银河般的终焉', next: 'end_destroy' }
+        ]
+      },
+
+      memory: {
+        title: '回忆涌入',
+        text: '你吞下那张旧纸片，心里忽然涌入一段记忆：你曾是某个实验项目中的“被遗忘者”，被拿来做神经同步测试。你以为自己只是一个普通人，其实你是被系统拿来牺牲的原型。',
+        choices: [
+          { text: '成为那个失去过去的人，继续前行', next: 'hub', effect: { intel: +15, hp: -5 } },
+          { text: '追查实验室的真相', next: 'tower', effect: { intel: +20 } },
+          { text: '把真相写成一份“人类声明”', next: 'finale', effect: { rep: +25 } }
+        ]
+      },
+
+      end_rebel: {
+        final: {
+          title: '自由之声',
+          text: '你揭露了城市的内幕，霓虹在炸裂的广告光中看见了真相。人们从监控与算法中醒来，起义的浪潮席卷夜城。你并没有成为英雄，但你终于让世界看见了自己。',
+          color: '#7dff9f'
+        }
+      },
+
+      end_order: {
+        final: {
+          title: '新秩序',
+          text: '你接管了网络，取代了旧有的系统，利用新的秩序计算每个人的未来。你赢了，但代价是：自由成了另一种形式的监狱。你穿着金色的衣服，站在所有人都看不见的高塔上。',
+          color: '#ffd166'
+        }
+      },
+
+      end_destroy: {
+        final: {
+          title: '末日余烬',
+          text: '你选择摧毁所有算法、所有塔楼、所有记忆和制度。城市一片黑暗，甚至连光都开始回避你。你赢得了“无敌”，但也失去了未来。这样的世界里，没有赢家，只有浓烈的回声。',
+          color: '#ff5c7a'
+        }
+      },
+
+      end_ai: {
+        final: {
+          title: '神经天使',
+          text: '你把自身送进了数据网络，成为一名持续思考的人工意识。你看见城市像一个会呼吸的生物，所有人都在你微小的神经里存在。你不再是人，但你不再为人类而活。',
+          color: '#5ef2ff'
+        }
+      },
+
+      end_boss: {
+        final: {
+          title: '商业帝王',
+          text: '你在黑市中崛起，做到了真正的“城主”。你拥有人生最丰厚的信用和最冷漠的笑容。你成了有钱人手中的工具，最终却发现，拥有一切的人也无法拥有自己。',
+          color: '#ff4fd8'
+        }
+      },
+
+      end_escape: {
+        final: {
+          title: '失去回路',
+          text: '你离开了城，向无人的荒野奔去。那里没有监控，没有系统，没有欲望。你终于在命运中成为一个人，而不是被写成一串数据的角色。',
+          color: '#7dff9f'
+        }
+      }
+    };
+
+    const hpEl = document.getElementById('hp');
+    const creditsEl = document.getElementById('credits');
+    const intelEl = document.getElementById('intel');
+    const repEl = document.getElementById('rep');
+    const textEl = document.getElementById('text');
+    const locationEl = document.getElementById('location');
+    const choicesEl = document.getElementById('choices');
+    const logEl = document.getElementById('logText');
+    const endingEl = document.getElementById('ending');
+
+    let storyLog = [];
+
+    function applyEffects(effect = {}) {
+      if (!effect) return;
+
+      if (effect.hp) state.hp += effect.hp;
+      if (effect.credits) state.credits += effect.credits;
+      if (effect.intel) state.intel += effect.intel;
+      if (effect.rep) state.rep += effect.rep;
+
+      if (effect.inventory) {
+        for (const key in effect.inventory) {
+          state.inventory[key] = effect.inventory[key];
+        }
+      }
+    }
+
+    function updateHud() {
+      hpEl.textContent = Math.max(0, state.hp);
+      creditsEl.textContent = Math.max(0, state.credits);
+      intelEl.textContent = Math.max(0, state.intel);
+      repEl.textContent = Math.max(0, state.rep);
+    }
+
+    function pushLog(message) {
+      storyLog.unshift(message);
+      if (storyLog.length > 5) storyLog.pop();
+      logEl.innerHTML = storyLog.join('<br>');
+    }
+
+    function renderScene(sceneKey) {
+      const scene = scenes[sceneKey];
+      if (!scene) return;
+
+      if (scene.final) {
+        endingEl.innerHTML = `
+          <div style="font-weight:700; color:${scene.final.color}; font-size:1.2rem;">${scene.final.title}</div>
+          <div>${scene.final.text}</div>
+        `;
+        endingEl.classList.add('show');
+        choicesEl.innerHTML = '';
+        textEl.textContent = '这是一场无法回头的选择。你已经走到了命运的尽头。';
+        locationEl.textContent = '终局';
+        return;
+      }
+
+      endingEl.classList.remove('show');
+      locationEl.textContent = scene.title;
+      textEl.textContent = scene.text;
+
+      choicesEl.innerHTML = '';
+      scene.choices.forEach(choice => {
+        const btn = document.createElement('button');
+        btn.className = 'choice';
+        btn.textContent = choice.text;
+        btn.onclick = () => {
+          applyEffects(choice.effect);
+          pushLog(choice.text + ' —— 你做出了这个决定。');
+
+          if (state.hp <= 0) {
+            state.hp = 0;
+            state.scene = 'finale';
+            pushLog('你的身体失去支撑，你在夜色中倒地。');
+            renderScene('finale');
+            updateHud();
+            return;
+          }
+
+          if (choice.next) {
+            state.scene = choice.next;
+            renderScene(choice.next);
+          }
+
+          updateHud();
+        };
+        choicesEl.appendChild(btn);
+      });
+    }
+
+    function init() {
+      state.scene = 'start';
+      storyLog = ['你从霓虹巷口醒来，城市的电流还在呼吸。'];
+      updateHud();
+      renderScene('start');
+      pushLog('每一个抉择都可能让你离自由更近一点。');
+    }
+
+    init();
+  </script>
+</body>
+</html>
